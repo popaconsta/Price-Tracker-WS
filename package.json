@@ -2,9 +2,9 @@
   "name": "ebay-price-tracker",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,9 +18,12 @@
   },
   "homepage": "https://github.com/constantinpopa11/eBay-Price-Tracker#readme",
   "dependencies": {
+    "axios": "^0.19.1",
+    "base-64": "^0.1.0",
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
     "mongodb": "^3.4.1",
-    "mongoose": "^5.8.7"
+    "mongoose": "^5.8.7",
+    "querystring": "^0.2.0"
   }
 }

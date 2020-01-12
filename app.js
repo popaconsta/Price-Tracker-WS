@@ -43,3 +43,10 @@ let port = process.env.PORT || 3000
 app.listen(port, () => {
     console.log('Server is up and running on port numner ' + port)
 });
+
+
+// const ebayAuth = require('./services/data/ebay-auth')
+// ebayAuth.refreshToken()
+
+const ebaySearch = require('./services/data/ebay-search')
+ebaySearch.searchItem()
