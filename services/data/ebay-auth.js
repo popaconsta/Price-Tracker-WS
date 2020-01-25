@@ -2,7 +2,20 @@ const axios = require('axios')
 var base64 = require('base-64')
 const qs = require('querystring')
 
-exports.refreshToken = function () {
+let token = null
+let expiresAt = null
+
+exports.getAccessToken = async function () {
+
+  let now = new Date().getTime()
+  if(token == null || now > expiresAt)
+    await refreshToken()
+
+  return token
+
+};
+
+async function refreshToken() {
 
   const url = 'https://api.ebay.com/identity/v1/oauth2/token'
 
@@ -18,12 +31,13 @@ exports.refreshToken = function () {
     scope: 'https://api.ebay.com/oauth/api_scope'
   }
 
-  axios.post(url, qs.stringify(requestBody), requestHeaders)
+  return axios.post(url, qs.stringify(requestBody), requestHeaders)
   .then((res) => {
-    //console.log('statusCode: ' + res.statusCode)
-    console.log(res.data)
+    //console.log(res.data)
+    token = res.data.access_token
+    expiresAt = new Date().getTime() + (res.data.expires_in * 1000) //current time in millies + expires_in in millies
   })
   .catch((error) => {
     console.error(error)
   })
-};
+}
