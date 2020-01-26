@@ -7,7 +7,7 @@ let PriceData = new Schema({
 })
 
 let ProductSchema = new Schema({
-    storeSpecificItemId: {type: Number, required: true},
+    storeSpecificProductId: {type: Number, required: true},
     title: {type: String, required: true, max: 200},
     currentPrice: {type: Number, required: true},
     description: {type: String, required: false, max: 500},

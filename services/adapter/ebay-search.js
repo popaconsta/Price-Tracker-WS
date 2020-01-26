@@ -1,43 +1,51 @@
 const axios = require('axios')
-var base64 = require('base-64')
-const qs = require('querystring')
 const sort = require('fast-sort')
 
-const Product = require('../../models/product.model');
-
+const APP_BASE_URL = require('../../app.js').APP_BASE_URL
 const ebayAuth = require('./ebay-auth')
 const ebayErrors = require('../constants/ebay-errors')
 const stores = require('../constants/stores')
 
-exports.parseItem = async function (itemId) {
+exports.searchEbayProduct = async function (req, res) {
 
-  let url = 'https://api.ebay.com/buy/browse/v1/item/get_items_by_item_group?item_group_id=' + itemId
+  let productId = req.query.productId
 
-  let result = await findItem(url)
+  let url = 'https://api.ebay.com/buy/browse/v1/item/get_items_by_item_group?item_group_id=' + productId
+
+  //Fetch item details from ebay
+  let result = await fetchProductListing(url)
 
   if(result == null){
-    //return error here
+    res.status(404).send({message: "Product not found"})
   } else if(result.items == undefined) {
     result = [result]
   } else {
     result = result.items
   }
 
+  //Make sure the product is available and on sell
   let items = result.filter(function (item) {
     return item.price.value > 0 &&
            item.estimatedAvailabilities[0].estimatedAvailabilityStatus == 'IN_STOCK'
-    })
+  })
 
+  //Get the cheapest one
   sort(items).asc(item => item.price.value);
 
-  for(let i=0; i<items.length; i++){
-    let item = items[i]
-
-    console.log(item)
+  let item = items[0]
+  let ebayProduct = {
+    storeSpecificProductId: productId,
+    title: item.title,
+    currentPrice: item.price.value,
+    description: item.shortDescription
   }
+
+  console.log(ebayProduct)
+  res.status(200).send(ebayProduct)
+
 }
 
-async function findItem(url) {
+async function fetchProductListing(url) {
 
   let accessToken = await ebayAuth.getAccessToken()
 
@@ -57,10 +65,10 @@ async function findItem(url) {
     error = error.response.data.errors[0]
 
     if(error.errorId == ebayErrors.INVALID_ACCESS_TOKEN){
-      return findItem(url)
+      return fetchProductListing(url)
     }
     else if(error.errorId == ebayErrors.INVALID_ITEM_GROUP){
-      return findItem(error.parameters[0].value)
+      return fetchProductListing(error.parameters[0].value)
     }
     else if(error.errorId == ebayErrors.ITEM_GROUP_NOT_FOUND){
       return null

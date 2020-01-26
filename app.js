@@ -1,8 +1,11 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 
-const routes = require('./routes')
-const app = express();
+let port = process.env.PORT || 3000
+
+module.exports = {
+  APP_BASE_URL: 'http://localhost:' + port
+}
 
 // Set up mongoose connection
 const mongoose = require('mongoose')
@@ -12,16 +15,16 @@ mongoose.Promise = global.Promise
 const db = mongoose.connection
 db.on('error', console.error.bind(console, 'MongoDB connection error:'))
 
+const routes = require('./routes')
+const app = express();
+
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: false}))
 app.use('/', routes)
 
-let port = process.env.PORT || 3000
-
 app.listen(port, () => {
     console.log('Server is up and running on port number ' + port)
-});
+})
 
-
-const ebaySearch = require('./services/data/ebay-search')
-ebaySearch.parseItem(133031283466)
+// const ebaySearch = require('./services/adapter/ebay-search')
+// ebaySearch.searchEbayProduct(133031283466)
