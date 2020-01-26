@@ -11,11 +11,13 @@ const bestBuySearch = require('./services/adapter/best-buy-search')
 const productSearching = require('./services/business/product-searching')
 const productTracking = require('./services/business/product-tracking')
 const trackingGateway = require('./services/process/tracking-gateway')
+const priceHistoryGateway = require('./services/process/price-history-gateway')
 
 router.get('/test', productPersistence.test)
 
 //Data services
 router.post('/products', auth.isRequestLocal, productPersistence.saveProduct)
+router.get('/products/:trackingId', auth.isRequestLocal, productPersistence.getProduct)
 router.get('/users', auth.isRequestLocal, userPersistence.getUser)
 
 //Adapter Services
@@ -28,5 +30,6 @@ router.get('/create-tracking', auth.isRequestLocal, productTracking.createTracki
 
 //Process Centric Services
 router.get('/track-new-product', auth.isApiKeyValid, trackingGateway.trackNewProduct)
+router.get('/show-price-history', auth.isApiKeyValid, priceHistoryGateway.showPriceHistory)
 
 module.exports = router

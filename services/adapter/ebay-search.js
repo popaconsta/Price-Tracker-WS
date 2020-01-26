@@ -16,12 +16,17 @@ exports.searchEbayProduct = async function (req, res) {
   let result = await fetchProductListing(url)
 
   if(result == null){
-    res.status(404).send({message: "Product not found"})
-  } else if(result.items == undefined) {
-    result = [result]
-  } else {
-    result = result.items
+    res.status(404).send({
+      status: 'fail',
+      statusCode: 404,
+      errorMessage: 'There is no product with this id on eBay.'
+    })
+    return
   }
+  else if(result.items == undefined)
+    result = [result] //If it's just an object, prepare an array containing it
+  else
+    result = result.items //If there's already an array, take it for further steps
 
   //Make sure the product is available and on sell
   let items = result.filter(function (item) {
@@ -31,8 +36,7 @@ exports.searchEbayProduct = async function (req, res) {
 
   //Get the cheapest one
   sort(items).asc(item => item.price.value);
-
-  let item = items[0]
+  let item = items[0] //ascending order so 1st element is the cheapest
   let ebayProduct = {
     storeSpecificProductId: productId,
     title: item.title,
@@ -40,8 +44,12 @@ exports.searchEbayProduct = async function (req, res) {
     description: item.shortDescription
   }
 
-  console.log(ebayProduct)
-  res.status(200).send(ebayProduct)
+  //console.log(ebayProduct)
+  res.status(200).send({
+    status: 'success',
+    statusCode: 200,
+    data: ebayProduct
+  })
 
 }
 
@@ -64,14 +72,13 @@ async function fetchProductListing(url) {
   .catch((error) => {
     error = error.response.data.errors[0]
 
-    if(error.errorId == ebayErrors.INVALID_ACCESS_TOKEN){
+    if(error.errorId == ebayErrors.INVALID_ACCESS_TOKEN) //acquire new token and try again
       return fetchProductListing(url)
-    }
-    else if(error.errorId == ebayErrors.INVALID_ITEM_GROUP){
+    else if(error.errorId == ebayErrors.INVALID_ITEM_GROUP) //fallback search method
       return fetchProductListing(error.parameters[0].value)
-    }
-    else if(error.errorId == ebayErrors.ITEM_GROUP_NOT_FOUND){
+    else if(error.errorId == ebayErrors.ITEM_GROUP_NOT_FOUND) //item not found
       return null
-    }
+    else //could not contact server
+      return null
   })
 }

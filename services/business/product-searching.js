@@ -11,27 +11,35 @@ exports.searchProduct = async function (req, res) {
   let productId = req.query.productId
 
   //Validate params
-  if(store == undefined || productId == undefined)
-    res.status(400).send({message: 'Bad request - insufficient parameters'})
+  if(store == undefined || productId == undefined){
+    res.status(400).send({
+      status: 'fail',
+      statusCode: 400,
+      errorMessage: 'Bad request - missing parameters'
+    })
+    return //force method to finish
+  }
 
-  if(stores.SUPPORTED_STORES.indexOf(store) < 0)
-    res.status(400).send({message: 'Bad request - store not supported'})
+  if(stores.SUPPORTED_STORES.indexOf(store) < 0){
+    res.status(400).send({
+      status: 'fail',
+      statusCode: 400,
+      message: 'Bad request - store not supported'
+    })
+    return //force method to finish
+  }
 
+  //Prepare search url based on store
   let url = null
-
   if(store === stores.EBAY)
     url = APP_BASE_URL + '/ebay-search?productId=' + productId
   else if(store === stores.BEST_BUY)
     url = APP_BASE_URL + '/best-buy-search?productId=' + productId
+  //console.log(APP_BASE_URL)
 
-  console.log(APP_BASE_URL)
+  let result = await searchOnStore(url)
+  res.status(result.statusCode).send(result) //propagate the error/product object
 
-  let product = await searchOnStore(url)
-
-  if(product == null)
-    res.status(400).send({message: "Bad request - product doesn't exist"})
-  else
-    res.status(200).send(product)
 }
 
 async function searchOnStore(url) {
@@ -41,9 +49,7 @@ async function searchOnStore(url) {
     return res.data
   })
   .catch((error) => {
-    if(error.response.status == 404)
-      return null
-    else
-      console.log(error)
+    console.log(error) //just in case
+    return error.response.data
   })
 }

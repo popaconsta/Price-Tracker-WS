@@ -7,15 +7,18 @@ exports.trackNewProduct = async function (req, res) {
   let productId = req.query.productId
 
   if(store == undefined || productId == undefined){
-    res.status(400).send('Bad request - insufficient parameters')
+    res.status(400).send({
+      status: 'fail',
+      statusCode: 400,
+      errorMessage: 'Bad request - missing parameters'
+    })
     return
   }
 
   console.log("You requested to track " + productId + " from " + store)
   let url = APP_BASE_URL + '/create-tracking?productId=' + productId + '&store=' + store
-  let trackedProduct = await createTracking(url)
-
-  res.status(200).send(trackedProduct)
+  let result = await createTracking(url)
+  res.status(result.statusCode).send(result)
 }
 
 async function createTracking(url) {
@@ -28,7 +31,6 @@ async function createTracking(url) {
   })
   .catch((error) => {
     console.log(error)
-
-    return null
+    return error.response.data
   })
 }
