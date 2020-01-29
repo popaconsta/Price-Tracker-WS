@@ -26,7 +26,7 @@ async function getPriceHistory(url) {
     return res.data
   })
   .catch((error) => {
-    console.log(error)
+    console.log('Price history gateway error ->\n' + JSON.stringify(error.response.data))
     return error.response.data
   })
 }

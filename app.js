@@ -10,7 +10,7 @@ module.exports = {
 // Set up mongoose connection
 const mongoose = require('mongoose')
 const mongoDB = process.env.MONGODB_URI
-mongoose.connect(mongoDB, { useNewUrlParser: true , useUnifiedTopology: true})
+mongoose.connect(mongoDB, { useNewUrlParser: true , useUnifiedTopology: true, useFindAndModify: false})
 mongoose.Promise = global.Promise
 const db = mongoose.connection
 db.on('error', console.error.bind(console, 'MongoDB connection error:'))
@@ -23,8 +23,8 @@ app.use(bodyParser.urlencoded({extended: false}))
 app.use('/', routes)
 
 app.listen(port, () => {
-    console.log('Server is up and running on port number ' + port)
+  console.log('Server is up and running on port number ' + port)
 })
 
-// const ebaySearch = require('./services/adapter/ebay-search')
-// ebaySearch.searchEbayProduct(133031283466)
+const priceUpdateScheduler = require('./price-update-scheduler')
+priceUpdateScheduler.start()

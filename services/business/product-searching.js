@@ -35,7 +35,6 @@ exports.searchProduct = async function (req, res) {
     url = APP_BASE_URL + '/ebay-search?productId=' + productId
   else if(store === stores.BEST_BUY)
     url = APP_BASE_URL + '/best-buy-search?productId=' + productId
-  //console.log(APP_BASE_URL)
 
   let result = await searchOnStore(url)
   res.status(result.statusCode).send(result) //propagate the error/product object
@@ -49,7 +48,7 @@ async function searchOnStore(url) {
     return res.data
   })
   .catch((error) => {
-    console.log(error) //just in case
+    console.log('Product search process error ->\n' + JSON.stringify(error.response.data))
     return error.response.data
   })
 }

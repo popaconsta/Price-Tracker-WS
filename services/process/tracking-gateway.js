@@ -25,12 +25,10 @@ async function createTracking(url) {
 
   return axios.get(url)
   .then((res) => {
-    //console.log('statusCode: ' + res.statusCode)
-    //console.log(res.data)
     return res.data
   })
   .catch((error) => {
-    console.log(error)
+    console.log('Product tracking gateway error ->\n' + JSON.stringify(error.response.data))
     return error.response.data
   })
 }

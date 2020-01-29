@@ -27,8 +27,24 @@ exports.createTracking = async function (req, res) {
     return //force method to finish
   }
 
+  let result = await getDuplicatedProduct(store, productId)
+
+  if(result.status == 'fail') {
+    res.status(result.statusCode).send(result)
+    return
+  }
+
+  if(result.data.length > 0) {
+    res.status(400).send({
+      status: 'fail',
+      statusCode: 400,
+      errorMessage: 'There is already an existing tracking for this product (' + result.data[0]._id + ')'
+    })
+    return
+  }
+
   let url = APP_BASE_URL + '/search-product?productId=' + productId + '&store=' + store
-  let result = await searchProduct(url)
+  result = await getStoreProductInfo(url)
   if(result.status == 'fail'){
     if(result.statusCode == 404)
       result.statusCode = 400
@@ -38,14 +54,12 @@ exports.createTracking = async function (req, res) {
   }
 
   let product = result.data
-  product.lowestPrice = product.currentPrice
   product.createdAt = new Date().getTime()
+  product.updatedAt = product.createdAt
+  product.lowestPrice = product.currentPrice
+  product.priceHistory = [{date: Date.now(), price: product.currentPrice}]
   product.store = store
-  product.averagePrice7Days = product.currentPrice
-  product.averagePrice30Days = product.currentPrice
-  product.priceHistory = [{date: new Date().getTime(), price: product.currentPrice}]
 
-  //console.log(product)
   result = await saveProduct(product)
   if(result.status == 'success')
     res.status(200).send({
@@ -58,19 +72,34 @@ exports.createTracking = async function (req, res) {
 
 }
 
-async function searchProduct(url) {
+function getDuplicatedProduct(store, productId) {
+
+  let url = APP_BASE_URL + '/products?store=' + store + '&productId=' + productId
 
   return axios.get(url)
   .then((res) => {
     return res.data
   })
   .catch((error) => {
-    console.log(error)
+    console.log('Product tracking process error ->\n' + JSON.stringify(error.response.data))
     return error.response.data
   })
 }
 
-async function saveProduct(product) {
+
+function getStoreProductInfo(url) {
+
+  return axios.get(url)
+  .then((res) => {
+    return res.data
+  })
+  .catch((error) => {
+    console.log('Product tracking process error ->\n' + JSON.stringify(error.response.data))
+    return error.response.data
+  })
+}
+
+function saveProduct(product) {
 
   const url = APP_BASE_URL + '/products'
 
@@ -79,7 +108,7 @@ async function saveProduct(product) {
     return res.data
   })
   .catch((error) => {
-    console.log(error)
+    console.log('Product tracking process error ->\n' + JSON.stringify(error.response.data))
     return error.response.data
   })
 }

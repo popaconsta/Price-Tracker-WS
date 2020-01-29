@@ -1,10 +1,14 @@
 const axios = require('axios')
 const sort = require('fast-sort')
+var base64 = require('base-64')
+const qs = require('querystring')
 
 const APP_BASE_URL = require('../../app.js').APP_BASE_URL
-const ebayAuth = require('./ebay-auth')
 const ebayErrors = require('../constants/ebay-errors')
 const stores = require('../constants/stores')
+
+let token = null
+let expiresAt = null
 
 exports.searchEbayProduct = async function (req, res) {
 
@@ -36,26 +40,34 @@ exports.searchEbayProduct = async function (req, res) {
 
   //Get the cheapest one
   sort(items).asc(item => item.price.value);
-  let item = items[0] //ascending order so 1st element is the cheapest
-  let ebayProduct = {
-    storeSpecificProductId: productId,
-    title: item.title,
-    currentPrice: item.price.value,
-    description: item.shortDescription
-  }
 
-  //console.log(ebayProduct)
-  res.status(200).send({
-    status: 'success',
-    statusCode: 200,
-    data: ebayProduct
-  })
+  if(items.length > 0){
+    let item = items[0] //ascending order so 1st element is the cheapest
+    let ebayProduct = {
+      storeSpecificProductId: productId,
+      title: item.title,
+      currentPrice: item.price.value * 1,
+      description: item.shortDescription
+    }
+
+    res.status(200).send({
+      status: 'success',
+      statusCode: 200,
+      data: ebayProduct
+    })
+  } else {
+    res.status(404).send({
+      status: 'fail',
+      statusCode: 404,
+      errorMessage: 'This product is not on sale anymore (delisted / out of stock)'
+    })
+  }
 
 }
 
 async function fetchProductListing(url) {
 
-  let accessToken = await ebayAuth.getAccessToken()
+  let accessToken = await getAccessToken()
 
   const requestHeaders = {
     headers: {
@@ -65,13 +77,10 @@ async function fetchProductListing(url) {
 
   return axios.get(url, requestHeaders)
   .then((res) => {
-    //console.log('statusCode: ' + res.statusCode)
-    //console.log(res.data)
     return res.data
   })
   .catch((error) => {
     error = error.response.data.errors[0]
-
     if(error.errorId == ebayErrors.INVALID_ACCESS_TOKEN) //acquire new token and try again
       return fetchProductListing(url)
     else if(error.errorId == ebayErrors.INVALID_ITEM_GROUP) //fallback search method
@@ -80,5 +89,41 @@ async function fetchProductListing(url) {
       return null
     else //could not contact server
       return null
+  })
+}
+
+async function getAccessToken() {
+
+  let now = new Date().getTime()
+  if(token == null || now > expiresAt)
+    await refreshToken()
+
+  return token
+}
+
+async function refreshToken() {
+
+  const url = 'https://api.ebay.com/identity/v1/oauth2/token'
+
+  const requestHeaders = {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ' + base64.encode(process.env.EBAY_CLIENT_ID + ':' + process.env.EBAY_CLIENT_SECRET)
+    }
+  }
+
+  const requestBody = {
+    grant_type: 'client_credentials',
+    scope: 'https://api.ebay.com/oauth/api_scope'
+  }
+
+  return axios.post(url, qs.stringify(requestBody), requestHeaders)
+  .then((res) => {
+    //console.log(res.data)
+    token = res.data.access_token
+    expiresAt = new Date().getTime() + (res.data.expires_in * 1000) //current time in millies + expires_in in millies
+  })
+  .catch((error) => {
+    console.error(error)
   })
 }
