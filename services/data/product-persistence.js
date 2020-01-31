@@ -55,7 +55,7 @@ exports.getProductByTrackingId = function(req, res) {
 exports.updateProduct = function(req, res) {
 
   let newInfo = req.body
-  if(!newInfo.currentPrice) delete newInfo.currentPrice
+  //if(!newInfo.currentPrice) delete newInfo.currentPrice
   if(!newInfo.lowestPrice) delete newInfo.lowestPrice
   if(!newInfo.previous7DaysAverage) delete newInfo.previous7DaysAverage
   if(!newInfo.previous30DaysAverage) delete newInfo.previous30DaysAverage
@@ -125,7 +125,7 @@ exports.getProducts = function(req, res) {
   if(req.query.store) query.store = req.query.store
   if(req.query.productId) query.storeSpecificProductId = req.query.productId
 
-  Product.find(query, function(err, products){
+  Product.find(query, {_id: 1, title: 1, description: 1, currentPrice: 1}, function(err, products){
     if (err) {
       console.log(err)
       res.status(500).send({

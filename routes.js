@@ -36,5 +36,6 @@ router.get('/update-prices', auth.isRequestLocal, priceUpdate.updatePrices)
 //Process Centric Services
 router.get('/track-new-product', auth.isApiKeyValid, trackingGateway.trackNewProduct)
 router.get('/show-price-history', auth.isApiKeyValid, priceHistoryGateway.showPriceHistory)
+router.get('/show-all-trackings', auth.isApiKeyValid, priceHistoryGateway.showAllTrackings)
 
 module.exports = router

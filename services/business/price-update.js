@@ -98,6 +98,7 @@ function getProductInfo(product) {
   .catch((error) => {
     console.log('Price update process error ->\n' + JSON.stringify(error.response.data))
     product.active = false
+    product.currentPrice = null
     return product
   })
 }

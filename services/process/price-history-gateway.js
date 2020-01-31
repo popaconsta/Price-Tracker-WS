@@ -19,7 +19,27 @@ exports.showPriceHistory = async function (req, res) {
   res.status(result.statusCode).send(result)
 }
 
+exports.showAllTrackings = async function (req, res) {
+
+  console.log('You requested the list of all the existing trackings')
+  let url = APP_BASE_URL + '/products'
+  let result = await getProductList(url)
+  res.status(result.statusCode).send(result)
+}
+
 async function getPriceHistory(url) {
+
+  return axios.get(url)
+  .then((res) => {
+    return res.data
+  })
+  .catch((error) => {
+    console.log('Price history gateway error ->\n' + JSON.stringify(error.response.data))
+    return error.response.data
+  })
+}
+
+async function getProductList(url) {
 
   return axios.get(url)
   .then((res) => {

@@ -1,7 +1,7 @@
 const axios = require('axios')
 
 const APP_BASE_URL = require('../../app.js').APP_BASE_URL
-const productSearch = require('./product-searching')
+const productSearch = require('./product-search')
 const stores = require('../constants/stores')
 
 exports.createTracking = async function (req, res) {
