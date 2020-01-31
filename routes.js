@@ -17,25 +17,25 @@ const priceHistoryGateway = require('./services/process/price-history-gateway')
 router.get('/test', productPersistence.test)
 
 //Data services
-router.post('/products', productPersistence.saveProduct)
-router.get('/products', productPersistence.getProducts)
-router.get('/update-list', productPersistence.getUpdateList)
-router.get('/products/:trackingId', productPersistence.getProductByTrackingId)
-router.put('/products/:trackingId', productPersistence.updateProduct)
-router.get('/users', userPersistence.getUser)
+router.post('/products', auth.isRequestLocal, productPersistence.saveProduct)
+router.get('/products', auth.isRequestLocal, productPersistence.getProducts)
+router.get('/update-list', auth.isRequestLocal, productPersistence.getUpdateList)
+router.get('/products/:trackingId', auth.isRequestLocal, productPersistence.getProductByTrackingId)
+router.put('/products/:trackingId', auth.isRequestLocal, productPersistence.updateProduct)
+router.get('/users', auth.isRequestLocal, userPersistence.getUser)
 
 //Adapter Services
-router.get('/ebay-search', ebaySearch.searchEbayProduct)
-router.get('/best-buy-search', bestBuySearch.searchBestBuyProduct)
+router.get('/ebay-search', auth.isRequestLocal, ebaySearch.searchEbayProduct)
+router.get('/best-buy-search', auth.isRequestLocal, bestBuySearch.searchBestBuyProduct)
 
 //Business Logic Services
-router.get('/search-product', productSearch.searchProduct)
-router.get('/create-tracking', productTracking.createTracking)
-router.get('/update-prices', priceUpdate.updatePrices)
+router.get('/search-product', auth.isRequestLocal, productSearch.searchProduct)
+router.get('/create-tracking', auth.isRequestLocal, productTracking.createTracking)
+router.get('/update-prices', auth.isRequestLocal, priceUpdate.updatePrices)
 
 //Process Centric Services
-router.get('/track-new-product', trackingGateway.trackNewProduct)
-router.get('/show-price-history', priceHistoryGateway.showPriceHistory)
-router.get('/show-all-trackings', priceHistoryGateway.showAllTrackings)
+router.get('/track-new-product', auth.isApiKeyValid, trackingGateway.trackNewProduct)
+router.get('/show-price-history', auth.isApiKeyValid, priceHistoryGateway.showPriceHistory)
+router.get('/show-all-trackings', auth.isApiKeyValid, priceHistoryGateway.showAllTrackings)
 
 module.exports = router
