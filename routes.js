@@ -38,7 +38,7 @@ router.get('/show-all-trackings', auth.isApiKeyValid, priceHistoryGateway.showAl
 
 //Welcome  message
 router.get('/', function (req, res) {
-  res.send(' Welcome to the Price Tracker-WS: a web service which can track products price from e-commerce stores such as eBay and BestBuy.\n'+
+  res.send(' Welcome to the Price Tracker-WS: a web service which can track products price from e-commerce stores such as eBay and BestBuy.\n'
           + 'Please check the documentation at https://pricetracker.docs.apiary.io/#reference')
 })
 
