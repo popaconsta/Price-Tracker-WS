@@ -14,8 +14,6 @@ const priceUpdate = require('./services/business/price-update')
 const trackingGateway = require('./services/process/tracking-gateway')
 const priceHistoryGateway = require('./services/process/price-history-gateway')
 
-router.get('/test', productPersistence.test)
-
 //Data services
 router.post('/products', auth.isRequestLocal, productPersistence.saveProduct)
 router.get('/products', auth.isRequestLocal, productPersistence.getProducts)
@@ -37,5 +35,11 @@ router.get('/update-prices', auth.isRequestLocal, priceUpdate.updatePrices)
 router.get('/track-new-product', auth.isApiKeyValid, trackingGateway.trackNewProduct)
 router.get('/show-price-history', auth.isApiKeyValid, priceHistoryGateway.showPriceHistory)
 router.get('/show-all-trackings', auth.isApiKeyValid, priceHistoryGateway.showAllTrackings)
+
+//Welcome  message
+router.get('/', function (req, res) {
+  res.send(' Welcome to the Price Tracker-WS: a web service which can track products price from e-commerce stores such as eBay and BestBuy.\n'+
+          + 'Please check the documentation at https://pricetracker.docs.apiary.io/#reference')
+})
 
 module.exports = router

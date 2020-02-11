@@ -1,10 +1,6 @@
 const Product = require('../../models/product-model')
 const ObjectId = require('mongoose').Types.ObjectId
 
-exports.test = function (req, res) {
-  res.send('Greetings from the Test controller!');
-}
-
 exports.saveProduct = function (req, res) {
 
   let product = new Product(req.body)
