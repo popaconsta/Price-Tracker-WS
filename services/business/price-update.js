@@ -79,7 +79,7 @@ function getProductInfo(product) {
     product.active = true
 
     let _30DaysAgo = new Date(new Date().setDate(new Date().getDate() - 30)).setHours(0, 0, 0, 0)
-    let _7DaysAgo = new Date(new Date().setDate(new Date().getDate() - 30)).setHours(0, 0, 0, 0)
+    let _7DaysAgo = new Date(new Date().setDate(new Date().getDate() - 7)).setHours(0, 0, 0, 0)
     let prev7DaysPrices = []
     let prev30DaysPrices = []
 
