@@ -2,6 +2,7 @@ const axios = require('axios')
 
 const APP_BASE_URL = require('./app.js').APP_BASE_URL
 const priceUpdate = require('./services/business/price-update')
+const PRICE_UPDATE_INTERVAL = (process.env.PRICE_UPDATE_INTERVAL || (1 * 60 * 60)) * 1000 //millies
 
 exports.start = function () {
 
